@@ -21,9 +21,9 @@ class TaskFactory extends Factory
         return [
             'name' => fake()->words(3, true),
             'description' => fake()->paragraphs(2, true),
-            'estimated_duration' => 30,
+            'estimated_duration' => 9,
             'status' => $status,
-            'duration' => in_array($status, ['TERMINATED', 'PAID']) ? 35 : null,
+            'duration' => in_array($status, ['TERMINATED', 'PAID']) ? 10 : null,
             'started_at' => in_array($status, ['TERMINATED', 'PAID', 'IN_PROGRESS']) ? now()->subDays(2) : null,
             'ended_at' => in_array($status, ['TERMINATED', 'PAID']) ? now() : null,
         ];

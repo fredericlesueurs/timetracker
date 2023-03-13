@@ -14,6 +14,11 @@ class Project extends Model
 {
     use HasFactory, SoftDeletes, CascadeSoftDeletes;
 
+    protected $fillable = [
+        'name',
+        'description',
+    ];
+
     protected array $cascadeDeletes = ['tasks'];
 
     public function client(): BelongsTo

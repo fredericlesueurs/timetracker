@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
+use App\Filament\Resources\ClientResource\RelationManagers\ProjectsRelationManager;
 use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Models\Client;
 use Filament\Forms;
@@ -97,6 +98,7 @@ class ClientResource extends Resource
     public static function getRelations(): array
     {
         return [
+            ProjectsRelationManager::class,
             CommentsRelationManager::class,
         ];
     }

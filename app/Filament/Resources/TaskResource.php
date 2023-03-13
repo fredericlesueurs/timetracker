@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Models\Task;
 use Filament\Resources\Form;
@@ -9,6 +10,8 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class TaskResource extends Resource
 {
@@ -30,14 +33,14 @@ class TaskResource extends Resource
             ->schema([
                 Forms\Components\Grid::make([
                     'default' => 1,
-                    'sm' => 1,
                     'xl' => 2,
                 ])
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->columnSpan('full')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpan(2),
+                        ,
                         Forms\Components\Select::make('project_id')
                             ->relationship('project', 'name')
                             ->required(),
@@ -50,16 +53,20 @@ class TaskResource extends Resource
                                 'PAID' => 'Payé',
                             ]),
                         Forms\Components\Textarea::make('description')
-                            ->maxLength(65535)
-                            ->columnSpan(2),
+                            ->columnSpan('full')
+                            ->maxLength(65535),
                         Forms\Components\TextInput::make('estimated_duration')
                             ->numeric()
-                            ->suffix('mins')
-                            ->label('Durée estimée'),
+                            ->suffix('heure(s)')
+                            ->label('Durée estimée')
+                            ->minValue(1),
                         Forms\Components\TextInput::make('duration')
                             ->numeric()
-                            ->suffix('mins')
-                            ->label('Durée réelle'),
+                            ->suffix('heure(s)')
+                            ->label('Durée réelle')
+                            ->minValue(1),
+                        Forms\Components\DateTimePicker::make('started_at')->label('Date de début'),
+                        Forms\Components\DateTimePicker::make('ended_at')->label('Date de fin'),
                     ]),
             ]);
     }
@@ -71,6 +78,8 @@ class TaskResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom de la tâche')
                 ,
+                Tables\Columns\TextColumn::make('project.name')
+                    ->label('Projet'),
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Statut de la tâche')
                     ->enum([
@@ -80,13 +89,30 @@ class TaskResource extends Resource
                         'PAID' => 'Payé'
                     ])
                 ,
-                Tables\Columns\TextColumn::make('project.name')
-                    ->label('Projet')
+                Tables\Columns\TextColumn::make('estimated_duration')
+                    ->formatStateUsing(function (?string $state): ?string {
+                        if ($state === null) {
+                            return null;
+                        }
+
+                        return sprintf('%s heure(s)', $state);
+                    })
+                    ->label('Durée estimée'),
+                Tables\Columns\TextColumn::make('duration')
+                    ->formatStateUsing(function (?string $state): ?string {
+                        if ($state === null) {
+                            return null;
+                        }
+
+                        return sprintf('%s heure(s)', $state);
+                    })
+                    ->label('Durée réelle'),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -97,7 +123,7 @@ class TaskResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 
@@ -107,6 +133,7 @@ class TaskResource extends Resource
             'index' => Pages\ListTasks::route('/'),
             'create' => Pages\CreateTask::route('/create'),
             'edit' => Pages\EditTask::route('/{record}/edit'),
+            'view' => Pages\ViewTask::route('/{record}'),
         ];
     }
 }

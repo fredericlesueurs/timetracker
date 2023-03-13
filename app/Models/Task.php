@@ -16,6 +16,17 @@ class Task extends Model
 
     protected array $cascadeDeletes = ['subTasks', 'sessions'];
 
+    protected $fillable = [
+        'name',
+        'description',
+        'estimated_duration',
+        'status',
+        'started_at',
+        'duration',
+        'started_at',
+        'ended_at',
+    ];
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

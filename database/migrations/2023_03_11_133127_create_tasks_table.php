@@ -21,8 +21,8 @@ return new class extends Migration
             $table->enum('status', ['WAITING', 'IN_PROGRESS', 'TERMINATED', 'PAID'])->default('WAITING');
             $table->foreignId('project_id')->nullable()->constrained()->cascadeOnDelete();
             $table->integer('duration')->nullable();
-            $table->date('started_at')->nullable();
-            $table->date('ended_at')->nullable();
+            $table->dateTimeTz('started_at')->nullable();
+            $table->dateTimeTz('ended_at')->nullable();
         });
     }
 

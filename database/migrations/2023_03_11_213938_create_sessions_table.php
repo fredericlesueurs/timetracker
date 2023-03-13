@@ -17,7 +17,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreignId('task_id')->constrained()->cascadeOnDelete();
             $table->dateTimeTz('started_at');
-            $table->dateTimeTz('ended_at');
+            $table->dateTimeTz('ended_at')->nullable();
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProjectResource\Pages;
+use App\Filament\Resources\ProjectResource\RelationManagers\TasksRelationManager;
 use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Models\Project;
 use Filament\Forms;
@@ -82,6 +83,7 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
+            TasksRelationManager::class,
             CommentsRelationManager::class,
         ];
     }
