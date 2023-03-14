@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\TaskResource\Pages;
+use App\Filament\Resources\TaskResource\RelationManagers\SessionsRelationManager;
 use App\Models\Task;
 use Filament\Resources\Form;
 use Filament\Forms;
@@ -20,6 +21,8 @@ class TaskResource extends Resource
     protected static ?string $model = Task::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-beaker';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -123,6 +126,7 @@ class TaskResource extends Resource
     public static function getRelations(): array
     {
         return [
+            SessionsRelationManager::class,
             CommentsRelationManager::class,
         ];
     }

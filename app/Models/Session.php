@@ -13,6 +13,11 @@ class Session extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable = [
+        'started_at',
+        'ended_at',
+    ];
+
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
