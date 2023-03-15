@@ -21,10 +21,14 @@ class Task extends Model
         'description',
         'estimated_duration',
         'status',
-        'started_at',
         'duration',
         'started_at',
         'ended_at',
+    ];
+
+    protected $casts = [
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
     ];
 
     public function project(): BelongsTo

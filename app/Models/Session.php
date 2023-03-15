@@ -18,6 +18,11 @@ class Session extends Model
         'ended_at',
     ];
 
+    protected $casts = [
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+    ];
+
     public function task(): BelongsTo
     {
         return $this->belongsTo(Task::class);
