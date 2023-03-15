@@ -16,6 +16,7 @@ class Session extends Model
     protected $fillable = [
         'started_at',
         'ended_at',
+        'task_id',
     ];
 
     protected $casts = [
