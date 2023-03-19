@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource\RelationManagers\SessionsRelationManager;
+use App\Models\Session;
 use App\Models\Task;
+use Filament\Notifications\Notification;
 use Filament\Resources\Form;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -63,7 +65,7 @@ class TaskResource extends Resource
                             ->suffix('heure(s)')
                             ->label('Durée estimée')
                             ->minValue(1),
-                        Forms\Components\TextInput::make('duration')
+                        Forms\Components\TextInput::make('realDuration')
                             ->numeric()
                             ->suffix('heure(s)')
                             ->label('Durée réelle')
@@ -101,7 +103,13 @@ class TaskResource extends Resource
                         return sprintf('%s heure(s)', $state);
                     })
                     ->label('Durée estimée'),
-                Tables\Columns\TextColumn::make('duration')
+                Tables\Columns\TextColumn::make('realDuration')
+                    ->getStateUsing(function (Task $record) {
+                        return ceil($record->sessions
+                            ->filter(fn(Session $session) => $session->started_at !== null && $session->ended_at !== null)
+                            ->map(fn(Session $session) => $session->ended_at->diffInSeconds($session->started_at))
+                            ->sum() / 3600);
+                    })
                     ->formatStateUsing(function (?string $state): ?string {
                         if ($state === null) {
                             return null;
@@ -117,6 +125,46 @@ class TaskResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('startSession')
+                    ->label('Démarrer une session')
+                    ->action(function (Task $record) {
+                        $session = new Session();
+
+                        $session->task()->associate($record);
+                        $session->started_at = now();
+
+                        $session->save();
+
+                        Notification::make()
+                            ->title('Session générée')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(function () {
+                        return Session::where('ended_at', '=', null)->first() === null;
+                    })
+                    ->icon('heroicon-o-play')
+                    ->color('success'),
+                Tables\Actions\Action::make('endSession')
+                    ->label('Stopper la session')
+                    ->action(function (Task $record) {
+                        $session = Session::where('task_id', '=', $record->id)
+                            ->whereNull('ended_at')
+                            ->first();
+                        $session->ended_at = now();
+
+                        $session->save();
+
+                        Notification::make()
+                            ->title('Session stoppée')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(function (Task $record) {
+                        return Session::where('task_id', '=', $record->id)->whereNull('ended_at')->first() !== null;
+                    })
+                    ->icon('heroicon-o-stop')
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
