@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Session;
-use Closure;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,6 +10,11 @@ use Illuminate\Database\Eloquent\Builder;
 class SessionsForActiveMonth extends BaseWidget
 {
     protected int | string | array $columnSpan = 2;
+
+    protected function getTableHeading(): string
+    {
+        return 'Sessions du mois';
+    }
 
     protected function getTableQuery(): Builder
     {

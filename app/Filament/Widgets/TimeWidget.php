@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Session;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Collection;
 
 class TimeWidget extends Widget
 {
@@ -12,9 +13,9 @@ class TimeWidget extends Widget
     protected function getViewData(): array
     {
         return [
-            'hours' => ceil(Session::activeMonth()->get()->sum(function (Session $session): int {
-                return $session->ended_at->timestamp - $session->started_at->timestamp;
-            }) / 3600),
+            'hours' => Session::activeMonth()->get()->groupBy('task_id')->sum(function (Collection $collection): int {
+                return ceil($collection->sum(fn(Session $session): int => $session->ended_at->timestamp - $session->started_at->timestamp) / 3600);
+            }),
         ];
     }
 }

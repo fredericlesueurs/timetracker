@@ -5,6 +5,7 @@ module.exports = {
         './resources/**/*.blade.php',
         './resources/**/*.js',
         './vendor/filament/**/*.blade.php',
+        './vendor/savannabits/filament-flatpickr/**/*.blade.php',
     ],
     theme: {
         extend: {},
