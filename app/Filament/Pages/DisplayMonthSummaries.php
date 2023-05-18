@@ -34,9 +34,13 @@ class DisplayMonthSummaries extends Page implements HasTable
             Tables\Columns\TextColumn::make('project.name')->label('Nom du projet'),
             Tables\Columns\TextColumn::make('name')->label('Nom de la tâche'),
             Tables\Columns\TextColumn::make('hourNbr')->label('Nombre d\'heure sur la tache')
-                ->getStateUsing(function (Task $record): string {
+                ->getStateUsing(function (Task $record, $livewire): string {
+                    $startFilter = $livewire->tableFilters['started_at']['started_from'];
+                    $endFilter = $livewire->tableFilters['started_at']['started_until'];
+
                     return ceil(Session::where('task_id', '=', $record->id)
-                            ->activeMonth()
+                            ->whereDate('started_at', '>=', $startFilter)
+                            ->whereDate('started_at', '<=', $endFilter)
                             ->get()
                             ->sum(fn(Session $session): int => $session->ended_at->timestamp - $session->started_at->timestamp)
                         / 3600).' heure(s)';
