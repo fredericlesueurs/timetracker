@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Models\Comment;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;

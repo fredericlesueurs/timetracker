@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,5 +41,10 @@ class Session extends Model
         $this->comments()->delete();
 
         return parent::delete();
+    }
+
+    public function scopeActiveMonth(Builder $query): void
+    {
+        $query->whereDate('started_at', '>=', Carbon::now()->startOfMonth());
     }
 }
