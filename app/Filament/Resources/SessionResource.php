@@ -4,15 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\SessionResource\Pages;
-use App\Filament\Resources\SessionResource\RelationManagers;
 use App\Models\Session;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SessionResource extends Resource
 {
@@ -65,6 +63,26 @@ class SessionResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('endSession')
+                    ->label('Stopper la session')
+                    ->action(function (Session $record) {
+                        $session = Session::where('id', '=', $record->id)
+                            ->whereNull('ended_at')
+                            ->first();
+                        $session->ended_at = now();
+
+                        $session->save();
+
+                        Notification::make()
+                            ->title('Session stoppée')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(function (Session $record) {
+                        return Session::where('id', '=', $record->id)->whereNull('ended_at')->first() !== null;
+                    })
+                    ->icon('heroicon-o-stop')
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
