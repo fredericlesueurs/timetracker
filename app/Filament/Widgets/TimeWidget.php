@@ -14,7 +14,13 @@ class TimeWidget extends Widget
     {
         return [
             'hours' => Session::activeMonth()->get()->groupBy('task_id')->sum(function (Collection $collection): int {
-                return ceil($collection->sum(fn(Session $session): int => $session->ended_at->timestamp - $session->started_at->timestamp) / 3600);
+                return ceil($collection->sum(function (Session $session): int {
+                    if ($session->ended_at === null || $session->started_at === null) {
+                        return 0;
+                    }
+
+                    return $session->ended_at->timestamp - $session->started_at->timestamp;
+                }) / 3600);
             }),
         ];
     }

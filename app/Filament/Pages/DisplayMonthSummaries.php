@@ -42,7 +42,13 @@ class DisplayMonthSummaries extends Page implements HasTable
                             ->whereDate('started_at', '>=', $startFilter)
                             ->whereDate('started_at', '<=', $endFilter)
                             ->get()
-                            ->sum(fn(Session $session): int => $session->ended_at->timestamp - $session->started_at->timestamp)
+                            ->sum(function (Session $session): int {
+                                if ($session->ended_at === null || $session->started_at === null) {
+                                    return 0;
+                                }
+
+                                return $session->ended_at->timestamp - $session->started_at->timestamp;
+                            })
                         / 3600).' heure(s)';
                 })
         ];
